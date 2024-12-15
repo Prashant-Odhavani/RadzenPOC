@@ -1,0 +1,135 @@
+﻿@page "/charts"
+@using Radzen
+@inject IProductRepository ProductRepository
+
+<style>
+    .page {
+        background-color: #f7f7f7;
+        padding: 20px;
+    }
+
+    .chart-title {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .charts-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-between;
+        padding: 10px;
+    }
+
+    .chart-card {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 48%; 
+        margin-bottom: 20px; 
+    }
+
+        .chart-card .radzen-chart {
+            height: 300px;
+            width: 100%;
+        }
+
+    @@media (max-width: 768px) {
+        .chart-card
+
+    {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<h3 class="chart-title">Product Charts</h3>
+
+<div class="charts-container">
+    <div class="chart-card">
+        <RadzenChart>
+            <RadzenLineSeries Data="@products" CategoryProperty="CreatedDate" ValueProperty="Price" Title="Price Over Time" />
+            <RadzenCategoryAxis FormatString="{0:MM/dd/yyyy}">
+                <RadzenAxisTitle Text="Date" />
+            </RadzenCategoryAxis>
+            <RadzenValueAxis>
+                <RadzenAxisTitle Text="Price" />
+            </RadzenValueAxis>
+        </RadzenChart>
+    </div>
+
+    <div class="chart-card">
+        <RadzenChart>
+            <RadzenBarSeries Data="@products" CategoryProperty="Category" ValueProperty="Quantity" Title="Quantity by Category" />
+            <RadzenCategoryAxis>
+                <RadzenAxisTitle Text="Category" />
+            </RadzenCategoryAxis>
+            <RadzenValueAxis>
+                <RadzenAxisTitle Text="Quantity" />
+            </RadzenValueAxis>
+        </RadzenChart>
+    </div>
+
+    <div class="chart-card">
+        <RadzenChart>
+            <RadzenPieSeries Data="@categoryData" ValueProperty="Value" CategoryProperty="Category" Title="Category Distribution" />
+        </RadzenChart>
+    </div>
+
+    <div class="chart-card">
+        <RadzenChart>
+            <RadzenAreaSeries Data="@products" CategoryProperty="CreatedDate" ValueProperty="Quantity" Title="Cumulative Quantity Over Time" />
+            <RadzenCategoryAxis FormatString="{0:MM/dd/yyyy}">
+                <RadzenAxisTitle Text="Date" />
+            </RadzenCategoryAxis>
+            <RadzenValueAxis>
+                <RadzenAxisTitle Text="Quantity" />
+            </RadzenValueAxis>
+        </RadzenChart>
+    </div>
+
+    <div class="chart-card">
+        <RadzenChart>
+            <RadzenDonutSeries Data="@categoryPriceData" ValueProperty="Value" CategoryProperty="Category" Title="Price Contribution by Category" />
+        </RadzenChart>
+    </div>
+
+    <div class="chart-card">
+        <RadzenChart>
+            <RadzenColumnSeries Data="@products" CategoryProperty="Category" ValueProperty="Quantity" Title="Quantity by Category" />
+            <RadzenLineSeries Data="@products" CategoryProperty="Category" ValueProperty="Price" Title="Price by Category" />
+            <RadzenCategoryAxis>
+                <RadzenAxisTitle Text="Category" />
+            </RadzenCategoryAxis>
+            <RadzenValueAxis>
+                <RadzenAxisTitle Text="Value" />
+            </RadzenValueAxis>
+        </RadzenChart>
+    </div>
+</div>
+
+@code {
+    private List<Product> products = new();
+    private List<CategoryData> categoryData = new();
+    private List<CategoryData> categoryPriceData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductRepository.GetAll(0, 100);
+        categoryData = products
+            .GroupBy(p => p.Category)
+            .Select(g => new CategoryData { Category = g.Key, Value = g.Count() })
+            .ToList();
+
+        categoryPriceData = products
+            .GroupBy(p => p.Category)
+            .Select(g => new CategoryData { Category = g.Key, Value = g.Sum(p => p.Price) })
+            .ToList();
+    }
+}

@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>RadzenPOC</PageTitle>
+
+<div class="layout-container">
+    <header class="navbar">
+        <div class="navbar-brand">
+            <a href="/">RadzenPOC</a>
+        </div>
+        <nav class="navbar-menu">
+            <RadzenButton Text="Home" Click="@(() => NavigationManager.NavigateTo("/"))" />
+            <RadzenButton Text="Products" Click="@(() => NavigationManager.NavigateTo("/products"))" />
+            <RadzenButton Text="Charts" Click="@(() => NavigationManager.NavigateTo("/charts"))" />
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="page-container">
+            @Body
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 RadzenPOC. All rights reserved.</p>
+        <h4>Designed & Developed by Prashant Odhavani</h4>
+    </footer>
+</div>
+
+<RadzenDialog />
+<RadzenNotification />
+<RadzenContextMenu />
+<RadzenTooltip />
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+}
+

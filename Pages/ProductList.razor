@@ -1,0 +1,120 @@
+﻿@page "/products"
+@inject IProductRepository ProductRepository
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenButton Text="Add Product" Click="OpenAddDialog" Icon="add_circle_outline" Style="margin-bottom: 20px;" />
+
+<RadzenDataGrid TItem="Product" Data="@products"
+Pageable="true" AllowSorting="true" AllowFiltering="true"
+SortOrder="@(SortOrder)" SortField="@(SortField)"
+Responsive="true">
+
+    <Columns>
+        <RadzenDataGridColumn TItem="Product" Property="Id" Title="Id" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Property="Name" Title="Name" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Property="Category" Title="Category" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Property="Quantity" Title="Quantity" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Property="Price" Title="Price" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Property="CreatedDate" Title="CreatedDate" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Property="IsActive" Title="Active" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Property="IsFeatured" Title="Featured" Sortable="true" Filterable="false" />
+        <RadzenDataGridColumn TItem="Product" Context="product" Title="Action" Sortable="false" Filterable="false">
+            <Template>
+                <RadzenButton Text="Edit" Click="() => OpenEditDialog(product)" Icon="edit" />
+                <RadzenButton Text="Delete" Click="() => DeleteProduct(product.Id)" Icon="delete" Style="margin-left: 10px;" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+<RadzenPager ShowPagingSummary="true" PagingSummaryFormat="@pagingSummaryFormat" HorizontalAlign="HorizontalAlign.Right" Count="count" PageSize="@pageSize" PageNumbersCount="5" PageChanged="@PageChanged"/>
+
+<RadzenChart>
+    <RadzenPieSeries Data="@categoryData" ValueProperty="Value" CategoryProperty="Category" Title="Category Distribution" />
+</RadzenChart>
+
+@code {
+    string pagingSummaryFormat = "Displaying page {0} of {1} (total {2} records)";
+    int pageIndex = 0;
+    int pageSize = 5;
+    int count;
+    private List<Product> products = new();
+    private string SortField { get; set; } = "Name";
+    private string SortOrder { get; set; } = "asc";
+
+    private List<CategoryData> categoryData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateProductList();
+        
+    }
+
+    private async Task LoadChart()
+    {
+        var productsData = await ProductRepository.GetAll(0, 100);
+        categoryData = productsData
+        .GroupBy(p => p.Category)
+        .Select(g => new CategoryData { Category = g.Key, Value = g.Count() })
+        .ToList();
+    }
+
+    private async Task UpdateProductList(int pageIndex = 0, int pageSize = 5)
+    {
+        count = await ProductRepository.GetProductCount();
+        products = await ProductRepository.GetAll(pageIndex, pageSize);
+
+        await LoadChart();
+
+        StateHasChanged();
+    }
+
+    async void PageChanged(PagerEventArgs args)
+    {
+        await UpdateProductList(args.PageIndex, pageSize);
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var result = await DialogService.OpenAsync<ProductDialog>(
+            "Add Product",
+            new Dictionary<string, object> { { "Product", new Product() } },
+            new Radzen.DialogOptions ()
+        );
+
+        if (result != null)
+        {
+            await ProductRepository.Add(result);
+            await UpdateProductList();
+            NotificationService.Notify(NotificationSeverity.Success, "Success", "Product added successfully!");
+        }
+    }
+
+    private async Task OpenEditDialog(Product product)
+    {
+        var result = await DialogService.OpenAsync<ProductDialog>(
+            "Edit Product",
+            new Dictionary<string, object> { { "Product", product } },
+            new Radzen.DialogOptions ()
+        );
+
+        if (result != null)
+        {
+            await ProductRepository.Update(result);
+            await UpdateProductList();
+            NotificationService.Notify(NotificationSeverity.Success, "Success", "Product updated successfully!");
+        }
+    }
+
+    private async Task EditProduct(Product product)
+    {
+        await OpenEditDialog(product);
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        await ProductRepository.Delete(id);
+        await UpdateProductList();
+        NotificationService.Notify(NotificationSeverity.Success, "Success", "Product deleted successfully!");
+    }
+}

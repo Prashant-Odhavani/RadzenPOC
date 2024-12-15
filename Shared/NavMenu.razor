@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Radzen
+@using Radzen.Blazor
+@inject NavigationManager NavigationManager
+
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-logo">
+            <span>Radzen POC</span>
+        </div>
+
+        <div class="navbar-links">
+            <RadzenButton Text="Home" Click="@(() => NavigateTo("/"))" />
+            <RadzenButton Text="Products" Click="@(() => NavigateTo("/products"))" />
+            <RadzenDropDownButton Text="More" Icon="menu">
+                <RadzenButton Text="Charts" Click="@(() => NavigateTo("/charts"))" />
+                <RadzenButton Text="Settings" Click="@(() => NavigateTo("/settings"))" />
+            </RadzenDropDownButton>
+        </div>
+
+        <div class="navbar-toggle" @onclick="ToggleMobileMenu">
+            <RadzenIcon Icon="menu" />
+        </div>
+    </div>
+
+    @if (isMobileMenuOpen)
+    {
+        <div class="mobile-menu">
+            <RadzenButton Text="Home" Click="@(() => NavigateTo("/"))" />
+            <RadzenButton Text="Products" Click="@(() => NavigateTo("/products"))" />
+            <RadzenButton Text="Charts" Click="@(() => NavigateTo("/charts"))" />
+            <RadzenButton Text="Settings" Click="@(() => NavigateTo("/settings"))" />
+        </div>
+    }
+</nav>
+
+@code {
+    private bool isMobileMenuOpen = false;
+
+    private void NavigateTo(string url)
+    {
+        NavigationManager.NavigateTo(url);
+        isMobileMenuOpen = false;
+    }
+
+    private void ToggleMobileMenu()
+    {
+        isMobileMenuOpen = !isMobileMenuOpen;
+    }
+}

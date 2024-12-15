@@ -1,0 +1,98 @@
+﻿@inject DialogService DialogService
+
+<div class="dialog-container">
+    <RadzenTemplateForm Data="@Product" TItem="Product" @ref="form" Submit="Save">
+        <div class="form-grid">
+            <div class="form-field">
+                <RadzenLabel Text="Name" Component="Name" />
+                <RadzenTextBox id="name" Name="Name" @bind-Value="Product.Name" Style="width: 100%;" />
+                <RadzenRequiredValidator Component="Name" Text="Name is required." />
+            </div>
+
+            <div class="form-field">
+                <RadzenLabel Text="Price" Component="Price" />
+                <RadzenNumeric id="price" Name="Price" @bind-Value="Product.Price" Style="width: 100%;" />
+                <RadzenRequiredValidator Component="Price" DefaultValue="null" Text="Price is required" />
+
+            </div>
+
+            <div class="form-field" style="grid-column: span 2;">
+                <RadzenLabel Text="Description" Component="Description" />
+                <RadzenTextArea id="description" Name="Description" @bind-Value="Product.Description" Style="width: 100%;" />
+                <RadzenRequiredValidator Component="Description" Text="Description is required." />
+            </div>
+
+            <div class="form-field">
+                <RadzenLabel Text="Category" Component="Category" />
+                <RadzenDropDown id="category" Name="Category" @bind-Value="Product.Category" Data="@categories" Style="width: 100%;" />
+                <RadzenRequiredValidator Component="Category" Text="Please select an category" />
+            </div>
+
+            <div class="form-field">
+                <RadzenLabel Text="Quantity" Component="Quantity" />
+                <RadzenNumeric id="quantity" Name="Quantity" @bind-Value="Product.Quantity" Style="width: 100%;" />
+                <RadzenRequiredValidator Component="Quantity" DefaultValue="null" Text="Quantity is required" />
+            </div>
+
+            <div class="form-field">
+                <RadzenLabel Text="Select Date" Component="CreatedDate" />
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Style="width: 100%;">
+                    <RadzenDatePicker @bind-Value="Product.CreatedDate" Name="CreatedDate" Min="DateTime.Today.AddYears(-4)" Max="DateTime.Today">
+                        <FooterTemplate>
+                            <RadzenButton Click=@(args => Product.CreatedDate = DateTime.Now) Text="Today" Style="width: 100%;" />
+                        </FooterTemplate>
+                    </RadzenDatePicker>
+                </RadzenStack>
+            </div>
+
+            <div class="form-field">
+                <RadzenLabel Text="Active" Component="Active" />
+                <RadzenCheckBox id="isActive" @bind-Value="Product.IsActive" />
+            </div>
+
+            <div class="form-field">
+                <RadzenLabel Text="Featured" Component="Featured" />
+                <RadzenRadioButtonList id="isFeatured" @bind-Value="Product.IsFeatured"
+                                       Data="@(new List<RadioOption> { new RadioOption { Text = "Yes", Value = true }, new RadioOption { Text = "No", Value = false } })"
+                                       TextProperty="Text" ValueProperty="Value" />
+            </div>
+        </div>
+
+        <div class="dialog-actions">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" Style="margin-right: 10px;" />
+            <RadzenButton ButtonType="ButtonType.Button" Text="Cancel" Click="@Cancel" />
+        </div>
+    </RadzenTemplateForm>
+</div>
+
+@code {
+    [Parameter]
+    public Product Product { get; set; }
+
+    private List<string> categories = new() { "Electronics", "Clothing", "Books", "Home Appliances" };
+
+    private RadzenTemplateForm<Product> form;
+
+    private void Save()
+    {
+        if (form.IsValid)
+        {
+            DialogService.Close(Product);
+        }
+        else
+        {
+            Console.WriteLine("Form is not valid.");
+        }
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close(null);
+    }
+
+    public class RadioOption
+    {
+        public string Text { get; set; }
+        public bool Value { get; set; }
+    }
+}

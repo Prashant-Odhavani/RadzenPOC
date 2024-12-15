@@ -1,0 +1,59 @@
+﻿@page "/"
+@using Radzen
+@layout MainLayout
+
+@inject NavigationManager NavigationManager
+
+<div class="dialog-container">
+    <RadzenCard>
+        <div class="form-grid">
+            <div class="hero-section">
+                <h1>Welcome to the POC</h1>
+                <p>Explore, Learn, and Build with this Proof of Concept (POC) application.</p>
+                <RadzenButton Text="Get Started" Click="@GetStarted" Style="margin: 10px;" />
+            </div>
+
+            <RadzenCard Title="What is this POC?" Style="margin: 20px;">
+                <p>
+                    This POC demonstrates the capabilities of building interactive and dynamic applications using
+                    Radzen Blazor components. It serves as a sandbox to showcase features such as form handling,
+                    data binding, and reusable UI components.
+                </p>
+            </RadzenCard>
+
+            <RadzenCard Title="What Can You Do with This POC?" Style="margin: 20px;">
+                <ul>
+                    <li>Create and manage data records like products, categories, and more.</li>
+                    <li>Use advanced UI components like charts, data grids, and validation controls.</li>
+                    <li>Learn how to structure and optimize Blazor applications effectively.</li>
+                </ul>
+            </RadzenCard>
+
+            <RadzenCard Title="What Can You Learn?" Style="margin: 20px;">
+                <ol>
+                    <li>How to build responsive layouts with Radzen Blazor components.</li>
+                    <li>Data binding and validation in Blazor forms.</li>
+                    <li>Integration of modern UI/UX principles in web applications.</li>
+                </ol>
+            </RadzenCard>
+
+            <div class="cta-section">
+                <h3>Ready to Get Started?</h3>
+                <p>Click below to explore the POC in detail and learn by doing!</p>
+                <RadzenButton Text="Explore Now" Click="@ExploreNow" Style="margin: 10px;" />
+            </div>
+        </div>
+    </RadzenCard>
+</div>
+
+@code {
+    private void GetStarted()
+    {
+        NavigationManager.NavigateTo("/products");
+    }
+
+    private void ExploreNow()
+    {
+        NavigationManager.NavigateTo("/charts");
+    }
+}
