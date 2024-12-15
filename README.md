@@ -83,4 +83,4 @@ Follow these steps to set up and run the POC application on your local machine:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/POC-Application.git
+   git clone https://github.com/Prashant-Odhavani/RadzenPOC.git
